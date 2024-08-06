@@ -7,7 +7,11 @@ import authRoute from "./authRoute";
 
 const mountRoutes = (app: Application): void => {
     app.use((req: Request, res: Response, next: NextFunction) => {
-        res.cookie('cookie', req.csrfToken());
+        res.cookie('_coo_123', req.csrfToken(), {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none',
+        });
         next();
     });
     app.use('/api/v1/examples', examplesRoute);

@@ -25,7 +25,7 @@ app.use(
         cookie: {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'product',
-            sameSite: 'strict',
+            sameSite: 'none',
         },
     }),
 );
