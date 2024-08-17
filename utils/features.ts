@@ -5,8 +5,6 @@ class Features {
     public paginationResult: PaginationQuery = {};
 
     constructor(public mongooseQuery: mongoose.Query<any[], any>, private readonly queryString: QueryString) {
-        this.mongooseQuery = mongooseQuery;
-        this.queryString = queryString;
     };
 
     filter() {

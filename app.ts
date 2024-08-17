@@ -39,12 +39,12 @@ dotenv.config();
 
 const port = process.env.PORT;
 let server: Server;
-DBConnection().then(() => {
-    server = app.listen(port, () => {
-        console.log(`app is listen on port ${port}`);
-    });
-});
+DBConnection();
 mountRoutes(app);
+
+server = app.listen(port, () => {
+    console.log(`app is listen on port ${port}`);
+});
 
 process.on('unhandledRejection', (err: Error) => {
     console.error(`unhandledRejection ${err.name} | ${err.message}`);
