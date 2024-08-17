@@ -8,8 +8,10 @@ import helmet from 'helmet';
 import ExpressMongoSanitize from 'express-mongo-sanitize';
 import cookieParser from 'cookie-parser';
 import csurf from "csurf";
+import i18n from "i18n";
 import DBConnection from './config/database';
 import mountRoutes from './routes';
+import path from "path";
 
 const app: express.Application = express();
 
@@ -39,6 +41,13 @@ dotenv.config();
 
 const port = process.env.PORT;
 let server: Server;
+i18n.configure({
+    locales: ['en', 'ar'],
+    defaultLocale: 'en',
+    queryParameter: 'lang',
+    directory: path.join(__dirname, './locales')
+})
+app.use(i18n.init);
 DBConnection();
 mountRoutes(app);
 

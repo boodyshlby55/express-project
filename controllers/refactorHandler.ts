@@ -14,7 +14,7 @@ export const getAll = <modelType>(model: mongoose.Model<any>, modelName: string)
         const data: modelType[] = await model.find(filterData);
         searchLength = data.length;
     }
-    
+
     if (req.query.search) {
         const searchResult: Features = new Features(model.find(filterData), req.query).search(modelName);
         const searchData: modelType[] = await searchResult.mongooseQuery;
@@ -54,7 +54,7 @@ export const createOne = <modelType>(model: mongoose.Model<any>) => expressAsync
 export const getOne = <modelType>(model: mongoose.Model<any>) => expressAsyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const document = await model.findById(req.params.id);
     if (!document) {
-        return next(new ApiErrors(`No document for this id`, 404));
+        return next(new ApiErrors(`${req.__('not_found')}`, 404));
     }
     res.status(200).json({data: document});
 });
