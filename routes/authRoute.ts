@@ -18,7 +18,7 @@ import {
 
 const authRoute: Router = Router();
 
-authRoute.route('/checkEmail').post(checkEmail);
+authRoute.route('/checkEmail').post(checkEmailValidator, checkEmail);
 authRoute.route('/signup').post(signupValidator, signup);
 authRoute.route('/login').post(loginValidator, login);
 authRoute.route('/forgetPassword').post(checkEmailValidator, forgetPassword);

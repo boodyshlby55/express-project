@@ -67,7 +67,7 @@ export const ExampleImages = uploadMultiImages([{name: 'cover', maxCount: 1}, {n
 export const addImages = expressAsyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const example = await examplesModel.findById(req.params.id);
     if (!example) {
-        return next(new ApiErrors('no example for this Id', 404));
+        return next(new ApiErrors(`${req.__('not_found')}`, 404));
     }
     await examplesModel.findByIdAndUpdate(example._id, {$addToSet: {images: req.body.images}}, {new: true});
     res.status(200).json({data: example});
@@ -75,7 +75,7 @@ export const addImages = expressAsyncHandler(async (req: Request, res: Response,
 export const deleteImage = expressAsyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const example = await examplesModel.findById(req.params.id);
     if (!example) {
-        return next(new ApiErrors('no example for this Id', 404));
+        return next(new ApiErrors(`${req.__('not_found')}`, 404));
     }
     await examplesModel.findByIdAndUpdate(example._id, {$pull: {images: req.body.images}}, {new: true});
     const exampleImages: string[] = [];

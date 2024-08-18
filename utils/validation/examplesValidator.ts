@@ -4,23 +4,33 @@ import {check} from 'express-validator';
 import validatorMiddleware from "../../middlewares/validatorMiddleware";
 
 export const createExampleValidator: RequestHandler[] = [
-    check('name').notEmpty().withMessage('category name is required'),
+    check('name').notEmpty().withMessage((val, {req}) => {
+        return req.__('validation_name')
+    }),
     validatorMiddleware
 ];
 
 export const getExampleValidator: RequestHandler[] = [
-    check('id').isMongoId().withMessage("invalid category id"),
+    check('id').isMongoId().withMessage((val, {req}) => {
+        return req.__('invalid_id')
+    }),
     validatorMiddleware
 ];
 
 export const updateExampleValidator: RequestHandler[] = [
-    check('id').isMongoId().withMessage("invalid category id"),
-    check('name').notEmpty().withMessage("category name is required"),
+    check('id').isMongoId().withMessage((val, {req}) => {
+        return req.__('invalid_id')
+    }),
+    check('name').notEmpty().withMessage((val, {req}) => {
+        return req.__('validation_name')
+    }),
     validatorMiddleware
 ];
 
 export const deleteExampleValidator: RequestHandler[] = [
-    check('id').isMongoId().withMessage("invalid category id"),
+    check('id').isMongoId().withMessage((val, {req}) => {
+        return req.__('invalid_id')
+    }),
     validatorMiddleware
 ];
 

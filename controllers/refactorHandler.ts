@@ -62,7 +62,7 @@ export const getOne = <modelType>(model: mongoose.Model<any>) => expressAsyncHan
 export const updateOne = <modelType>(model: mongoose.Model<any>) => expressAsyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const document = await model.findByIdAndUpdate(req.params.id, req.body, {new: true});
     if (!document) {
-        return next(new ApiErrors(`No document for this id`, 404));
+        return next(new ApiErrors(`${req.__('not_found')}`, 404));
     }
     res.status(200).json({data: document});
 });
@@ -70,7 +70,7 @@ export const updateOne = <modelType>(model: mongoose.Model<any>) => expressAsync
 export const deleteOne = <modelType>(model: mongoose.Model<any>) => expressAsyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const document = await model.findByIdAndDelete(req.params.id);
     if (!document) {
-        return next(new ApiErrors(`No document for this id`, 404));
+        return next(new ApiErrors(`${req.__('not_found')}`, 404));
     }
     res.status(204).json({status: "success"});
 });

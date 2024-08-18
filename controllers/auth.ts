@@ -12,11 +12,11 @@ import {createResetToken, createToken} from "../utils/createToken";
 
 export const checkEmail = expressAsyncHandler(async (req: Request, res: Response): Promise<void> => {
     const user = await usersModel.findOne({email: req.body.email});
-    let message;
+    let message: string;
     if (user) {
-        message = [{en: "Email is not available"}, {ar: "هذا البريد موجود بالفعل"}];
+        message = `${req.__('not_available')}`;
     } else {
-        message = [{en: "Email is available"}, {ar: "متاح"}];
+        message = `${req.__('available')}`;
     }
     res.status(200).json({data: message});
 });
@@ -30,7 +30,7 @@ export const signup = expressAsyncHandler(async (req: Request, res: Response): P
 export const login = expressAsyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const user = await usersModel.findOne({email: req.body.email});
     if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
-        return next(new ApiErrors('Invalid email or password', 401));
+        return next(new ApiErrors(`${req.__('invalid_login')}`, 401));
     }
     const token: string = createToken(user._id);
     res.status(200).json({token, user: sanitizeUser(user)});
@@ -39,7 +39,7 @@ export const login = expressAsyncHandler(async (req: Request, res: Response, nex
 export const forgetPassword = expressAsyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const user = await usersModel.findOne({email: req.body.email});
     if (!user) {
-        return next(new ApiErrors('no account with this email exist', 400));
+        return next(new ApiErrors(`${req.__('check_email')}`, 400));
     }
     const resetCode: string = Math.floor(100000 + Math.random() * 900000).toString();
     user.passwordResetCode = crypto.createHash('sha256').update(resetCode).digest('hex');
@@ -51,7 +51,7 @@ export const forgetPassword = expressAsyncHandler(async (req: Request, res: Resp
         await user.save({validateModifiedOnly: true});
     } catch (err: any) {
         console.log(err);
-        return next(new ApiErrors('Error while sending reset code... try again later', 400));
+        return next(new ApiErrors(`${req.__('send_email')}`, 400));
     }
     const resetToken: string = createResetToken(user._id);
     res.status(200).json({msg: 'check your email', resetToken});
@@ -63,7 +63,7 @@ export const verifyResetPasswordCode = expressAsyncHandler(async (req: Request, 
         resetToken = req.headers.authorization.split(' ')[1]
     }
     if (resetToken === '') {
-        return next(new ApiErrors("you don't have permission to verify reset code", 400));
+        return next(new ApiErrors(`${req.__('check_verify_code')}`, 400));
     }
     const decodedToken: any = Jwt.verify(resetToken, process.env.JWT_RESET_SECRET_KEY!);
     const hashedResetCode: string = crypto.createHash('sha256').update(req.body.resetCode).digest('hex');
@@ -73,7 +73,7 @@ export const verifyResetPasswordCode = expressAsyncHandler(async (req: Request, 
         passwordResetCodeExpires: {$gt: Date.now()}
     });
     if (!user) {
-        return next(new ApiErrors('Invalid or expired reset code', 400))
+        return next(new ApiErrors(`${req.__('check_code_valid')}`, 400))
     }
     user.passwordResetCodeVerify = true;
     await user.save({validateModifiedOnly: true});
@@ -86,12 +86,12 @@ export const resetPassword = expressAsyncHandler(async (req: Request, res: Respo
         resetToken = req.headers.authorization.split(' ')[1];
     }
     if (resetToken === '') {
-        return next(new ApiErrors('You do not have permission to verify reset code.', 400));
+        return next(new ApiErrors(`${req.__('check_reset_code')}`, 400));
     }
     const decodedToken: any = Jwt.verify(resetToken, process.env.JWT_RESET_SECRET_KEY!);
     const user = await usersModel.findOne({_id: decodedToken._id, passwordResetCodeVerify: true});
     if (!user) {
-        return next(new ApiErrors('Please verify your code first', 400));
+        return next(new ApiErrors(`${req.__('check_code_verify')}`, 400));
     }
     user.password = req.body.newPassword;
     user.passwordResetCode = undefined;
@@ -108,7 +108,7 @@ export const protectRoutes = expressAsyncHandler(async (req: Request, res: Respo
         token = req.headers.authorization.split(' ')[1];
     }
     if (token === '') {
-        return next(new ApiErrors('You are not logged in! Please log in to get access.', 401));
+        return next(new ApiErrors(`${req.__('check_login')}`, 401));
     }
     const decoded: any = Jwt.verify(token, process.env.JWT_SECRET_KEY!);
     const expirationThreshold: number = 24 * 60 * 60;
@@ -122,12 +122,12 @@ export const protectRoutes = expressAsyncHandler(async (req: Request, res: Respo
     }
     const user: any = sanitizeUser(await usersModel.findById(decoded._id));
     if (!user) {
-        return next(new ApiErrors('The user does not exist anymore...', 404));
+        return next(new ApiErrors(`${req.__('check_user')}`, 401));
     }
     if (user.passwordChangedAt instanceof Date) {
         const changedPasswordTime: number = (user.passwordChangedAt.getTime() / 1000);
         if (changedPasswordTime > decoded.iat) {
-            return next(new ApiErrors('Your password has been updated since you logged in last time. Please log in again.', 403));
+            return next(new ApiErrors(`${req.__('check_password_changed')}`, 401));
         }
     }
     req.user = user;
@@ -145,14 +145,14 @@ export const refreshToken = expressAsyncHandler(async (req: Request, res: Respon
 
 export const allowedTo = (...roles: string[]) => expressAsyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!(roles.includes(req.user?.role ?? ''))) {
-        return next(new ApiErrors(`Privilege denied! You cannot perform this action`, 403));
+        return next(new ApiErrors(`${req.__('allowed_to')}`, 403));
     }
     next();
 });
 
 export const checkActive = expressAsyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user?.active) {
-        return next(new ApiErrors("Your account is deactivated", 403));
+        return next(new ApiErrors(`${req.__('check_active')}`, 403));
     }
     next();
 });
