@@ -1,8 +1,9 @@
 import {Request, Response, NextFunction} from 'express'
 import expressAsyncHandler from "express-async-handler";
-import Jwt from 'jsonwebtoken';
+import rateLimit from "express-rate-limit";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
+import Jwt from 'jsonwebtoken';
 import usersModel from "../models/usersModel";
 import ApiErrors from "../utils/apiErrors";
 import sendEmail from "../utils/sendEmail";
@@ -23,7 +24,7 @@ export const checkEmail = expressAsyncHandler(async (req: Request, res: Response
 
 export const signup = expressAsyncHandler(async (req: Request, res: Response): Promise<void> => {
     const user: Users = await usersModel.create(req.body);
-    const token: string = createToken(user._id);
+    const token: string = createToken(user._id, user.role);
     res.status(201).json({token, user: sanitizeUser(user)});
 });
 
@@ -32,7 +33,7 @@ export const login = expressAsyncHandler(async (req: Request, res: Response, nex
     if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
         return next(new ApiErrors(`${req.__('invalid_login')}`, 401));
     }
-    const token: string = createToken(user._id);
+    const token: string = createToken(user._id, user.role);
     res.status(200).json({token, user: sanitizeUser(user)});
 });
 
@@ -103,7 +104,7 @@ export const resetPassword = expressAsyncHandler(async (req: Request, res: Respo
 });
 
 export const protectRoutes = expressAsyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    let token: string = ''; // * Check token
+    let token: string = '';
     if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
         token = req.headers.authorization.split(' ')[1];
     }
@@ -112,25 +113,25 @@ export const protectRoutes = expressAsyncHandler(async (req: Request, res: Respo
     }
     const decoded: any = Jwt.verify(token, process.env.JWT_SECRET_KEY!);
     const expirationThreshold: number = 24 * 60 * 60;
-    if (decoded.exp - Date.now() / 1000 < expirationThreshold) {
+    if ((decoded.exp - parseInt((Date.now() / 1000).toString())) < expirationThreshold) {
         try {
-            req.newToken = createToken(decoded._id);
+            req.newToken = createToken(decoded._id, decoded.role);
         } catch (error: any) {
             console.error('Error generating new token:', error);
             return next(new ApiErrors('Failed to refresh token.', 500));
         }
     }
-    const user: any = sanitizeUser(await usersModel.findById(decoded._id));
+    const user: any = await usersModel.findById(decoded._id);
     if (!user) {
         return next(new ApiErrors(`${req.__('check_user')}`, 401));
     }
     if (user.passwordChangedAt instanceof Date) {
-        const changedPasswordTime: number = (user.passwordChangedAt.getTime() / 1000);
+        const changedPasswordTime: number = parseInt((user.passwordChangedAt.getTime() / 1000).toString());
         if (changedPasswordTime > decoded.iat) {
             return next(new ApiErrors(`${req.__('check_password_changed')}`, 401));
         }
     }
-    req.user = user;
+    req.user = sanitizeUser(user);
     next();
 });
 
@@ -155,4 +156,10 @@ export const checkActive = expressAsyncHandler(async (req: Request, res: Respons
         return next(new ApiErrors(`${req.__('check_active')}`, 403));
     }
     next();
+});
+
+export const authLimit = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    limit: 5,
+    message: 'try again later'
 });

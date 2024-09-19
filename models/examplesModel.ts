@@ -9,13 +9,13 @@ const examplesSchema: mongoose.Schema = new mongoose.Schema<Examples>({
 
 const imageUrl = (document: Examples): void => {
     if (document.cover) {
-        const imageUrl: string = `${process.env.BASE_URL}/Examples/${document.cover}`;
+        const imageUrl: string = `${process.env.BASE_URL}/images/Examples/${document.cover}`;
         document.cover = imageUrl;
     }
     if (document.images) {
         const imagesList: string[] = [];
         document.images.forEach((image: string): void => {
-            const imageUrl: string = `${process.env.BASE_URL}/Examples/${image}`;
+            const imageUrl: string = `${process.env.BASE_URL}/images/Examples/${image}`;
             imagesList.push(imageUrl);
         });
         document.images = imagesList;

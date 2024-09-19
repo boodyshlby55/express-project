@@ -18,7 +18,7 @@ const app: express.Application = express();
 app.use(cors({
     origin: ['http://localhost:3000'],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['X-CSRF-Token', 'Authorization', 'Content-Type'],
+    allowedHeaders: ['X-CSRF-Token', 'X-API-KEY', 'Authorization', 'Content-Type'],
     credentials: true,
 }));
 app.use(cookieParser());
@@ -26,8 +26,8 @@ app.use(
     csurf({
         cookie: {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'product',
-            sameSite: 'none',
+            secure: true,
+            sameSite: 'strict',
         },
     }),
 );

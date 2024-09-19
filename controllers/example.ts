@@ -29,7 +29,7 @@ export const resizeImages = expressAsyncHandler(async (req: Request, res: Respon
             const imageCoverFileName: string = `Example-${req.body.name_en}-${Date.now()}-cover.jpg`;
             await sharp(req.files.cover[0].buffer)
                 .toFormat('jpg')
-                .toFile(`uploads/Examples/${imageCoverFileName}`);
+                .toFile(`uploads/images/Examples/${imageCoverFileName}`);
             req.body.cover = imageCoverFileName;
         }
         if (req.files.images) {
@@ -38,7 +38,7 @@ export const resizeImages = expressAsyncHandler(async (req: Request, res: Respon
                 const imageName: string = `Example-${Date.now()}N${index + 1}.jpg`;
                 await sharp(img.buffer)
                     .toFormat('jpg')
-                    .toFile(`uploads/Examples/${imageName}`);
+                    .toFile(`uploads/images/Examples/${imageName}`);
                 req.body.images.push(imageName);
             }));
         }
@@ -50,12 +50,12 @@ export const resizeImage = expressAsyncHandler(async (req: Request, res: Respons
         const imageName = `Example-${Date.now()}.jpg`;
         const example = await examplesModel.findById(req.params.id);
         if (example?.cover) {
-            const image: string = example.cover.split(`${process.env.BASE_URL}/Examples/`)[1]
+            const image: string = example.cover.split(`${process.env.BASE_URL}/images/Examples/`)[1]
             deleteUploadedImage(image)
         }
         await sharp(req.file.buffer)
             .toFormat('jpg')
-            .toFile(`uploads/Examples/${imageName}`);
+            .toFile(`uploads/images/Examples/${imageName}`);
         req.body.image = imageName;
     }
     next();

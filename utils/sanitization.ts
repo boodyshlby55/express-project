@@ -3,7 +3,8 @@ export const sanitizeUser = function (user: any) {
         _id: user._id,
         name: user?.name,
         email: user?.email,
-        image: user?.image,
+        role: user?.role,
         active: user?.active,
+        image: user?.image,
     };
 };

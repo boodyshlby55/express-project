@@ -11,12 +11,10 @@ export const getAll = <modelType>(model: mongoose.Model<any>, modelName: string)
     let searchLength: number = 0;
     if (req.filterData) {
         filterData = req.filterData;
-        const data: modelType[] = await model.find(filterData);
-        searchLength = data.length;
     }
 
-    if (req.query.search) {
-        const searchResult: Features = new Features(model.find(filterData), req.query).search(modelName);
+    if (req.query) {
+        const searchResult: Features = new Features(model.find(filterData), req.query).filter().search(modelName);
         const searchData: modelType[] = await searchResult.mongooseQuery;
         searchLength = searchData.length;
     }

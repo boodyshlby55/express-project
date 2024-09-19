@@ -6,8 +6,9 @@ const usersSchema: mongoose.Schema = new mongoose.Schema<Users>({
     email: {type: String, unique: true, required: true},
     password: {type: String, required: true, minlength: 6, maxlength: 20},
     name: {type: String, required: true, trim: true, minlength: 2, maxlength: 50},
-    image: String,
     active: {type: Boolean, default: true},
+    role: {type: String, enum: ['admin', 'user'], default: 'user'},
+    image: String,
     passwordChangedAt: Date,
     passwordResetCode: String,
     passwordResetCodeExpires: Date,
@@ -16,7 +17,7 @@ const usersSchema: mongoose.Schema = new mongoose.Schema<Users>({
 
 const imageUrl = (document: Users): void => {
     if (document.image) {
-        document.image = `${process.env.BASE_URL}/users/${document.image}`;
+        document.image = `${process.env.BASE_URL}/images/users/${document.image}`;
     }
 };
 
