@@ -1,31 +1,18 @@
 import {Router} from 'express';
-import {
-    createExample,
-    deleteExample,
-    filterExamples,
-    getExamples,
-    getExamplesList,
-    getExample,
-    updateExample
-} from "../controllers/example";
-import {
-    createExampleValidator,
-    deleteExampleValidator,
-    getExampleValidator,
-    updateExampleValidator
-} from "../utils/validation/examplesValidator";
+import examplesService from "../controllers/example";
+import examplesValidator from "../utils/validation/examplesValidator";
 
 const examplesRoute: Router = Router();
 
 examplesRoute.route('/')
-    .get(filterExamples, getExamples)
-    .post(createExampleValidator, createExample);
+    .get(examplesService.filterExamples, examplesService.getExamples)
+    .post(examplesValidator.createExample, examplesService.createExample);
 
-examplesRoute.get('/list', getExamplesList);
+examplesRoute.get('/list', examplesService.getExamplesList);
 
 examplesRoute.route('/:id')
-    .get(getExampleValidator, getExample)
-    .put(updateExampleValidator, updateExample)
-    .delete(deleteExampleValidator, deleteExample);
+    .get(examplesValidator.getExample, examplesService.getExample)
+    .put(examplesValidator.updateExample, examplesService.updateExample)
+    .delete(examplesValidator.deleteExample, examplesService.deleteExample);
 
 export default examplesRoute;

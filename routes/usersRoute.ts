@@ -1,46 +1,25 @@
 import {Router} from 'express';
-import {
-    changeLoggedUserPassword,
-    changeUserPassword,
-    createUser,
-    deleteUser,
-    getAllUsers,
-    getUser,
-    resizeUserImage,
-    setUserId,
-    updateLoggedUser,
-    updateUser,
-    uploadUserImage
-} from '../controllers/users';
-import {
-    changeLoggedUserPasswordValidator,
-    changeUserPasswordValidator,
-    createUserValidator,
-    deleteUserValidator,
-    getUserValidator,
-    updateLoggedUserValidator,
-    updateUserValidator
-} from '../utils/validation/usersValidator';
-import {allowedTo, checkActive, protectRoutes} from '../controllers/auth';
+import usersService from '../controllers/users';
+import usersValidator from '../utils/validation/usersValidator';
+import authService from '../controllers/auth';
 
 const usersRoute: Router = Router();
 
-usersRoute.use(protectRoutes, checkActive);
-usersRoute.get('/me', setUserId, getUser);
-usersRoute.put('/updateMe', setUserId, uploadUserImage, resizeUserImage, updateLoggedUserValidator, updateLoggedUser)
-usersRoute.put('/changeMyPassword', changeLoggedUserPasswordValidator, changeLoggedUserPassword)
-usersRoute.delete('/deleteMe', allowedTo('user'), setUserId, deleteUserValidator, deleteUser)
+usersRoute.use(authService.protectRoutes, authService.checkActive);
+usersRoute.route('/me')
+    .get(usersService.setUserId, usersService.getUser)
+    .put(usersService.setUserId, usersService.uploadUserImage, usersService.resizeUserImage, usersValidator.updateLoggedUser, usersService.updateLoggedUser)
+    .delete(authService.allowedTo('user'), usersService.setUserId, usersValidator.deleteUser, usersService.deleteUser)
+usersRoute.put('/changeMyPassword', usersValidator.changeLoggedUserPassword, usersService.changeLoggedUserPassword);
 
-usersRoute.use(allowedTo('manager'));
+usersRoute.use(authService.allowedTo('manager'));
 usersRoute.route('/')
-    .get(getAllUsers)
-    .post(uploadUserImage, resizeUserImage, createUserValidator, createUser);
-
+    .get(usersService.getAllUsers)
+    .post(usersService.uploadUserImage, usersService.resizeUserImage, usersValidator.createUser, usersService.createUser);
 usersRoute.route('/:id')
-    .get(getUserValidator, getUser)
-    .put(uploadUserImage, resizeUserImage, updateUserValidator, updateUser)
-    .delete(deleteUserValidator, deleteUser);
-
-usersRoute.put('/:id/changePassword', changeUserPasswordValidator, changeUserPassword)
+    .get(usersValidator.getUser, usersService.getUser)
+    .put(usersService.uploadUserImage, usersService.resizeUserImage, usersValidator.updateUser, usersService.updateUser)
+    .delete(usersValidator.deleteUser, usersService.deleteUser);
+usersRoute.put('/:id/changePassword', usersValidator.changeUserPassword, usersService.changeUserPassword);
 
 export default usersRoute;

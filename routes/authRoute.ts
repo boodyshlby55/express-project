@@ -1,29 +1,15 @@
 import {Router} from 'express';
-import {
-    checkEmail,
-    forgetPassword,
-    login,
-    protectRoutes,
-    refreshToken,
-    resetPassword,
-    signup,
-    verifyResetPasswordCode
-} from "../controllers/auth";
-import {
-    checkEmailValidator,
-    loginValidator,
-    resetPasswordValidator,
-    signupValidator
-} from "../utils/validation/authValidator";
+import authService from "../controllers/auth";
+import authValidator from "../utils/validation/authValidator";
 
 const authRoute: Router = Router();
 
-authRoute.route('/checkEmail').post(checkEmailValidator, checkEmail);
-authRoute.route('/signup').post(signupValidator, signup);
-authRoute.route('/login').post(loginValidator, login);
-authRoute.route('/forgetPassword').post(checkEmailValidator, forgetPassword);
-authRoute.route('/verifyResetPasswordCode').post(verifyResetPasswordCode);
-authRoute.route('/resetPassword').put(resetPasswordValidator, resetPassword);
-authRoute.route('/refreshToken').get(protectRoutes, refreshToken);
+authRoute.route('/checkEmail').post(authValidator.checkEmail, authService.checkEmail);
+authRoute.route('/signup').post(authValidator.signup, authService.signup);
+authRoute.route('/login').post(authValidator.login, authService.login);
+authRoute.route('/forgetPassword').post(authValidator.checkEmail, authService.forgetPassword);
+authRoute.route('/verifyResetPasswordCode').post(authService.verifyResetPasswordCode);
+authRoute.route('/resetPassword').put(authValidator.resetPassword, authService.resetPassword);
+authRoute.route('/refreshToken').get(authService.protectRoutes, authService.refreshToken);
 
 export default authRoute;
