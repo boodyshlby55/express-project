@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import {Examples} from '../interfaces/examples';
+import {Examples} from './examples.interface';
 
 const examplesSchema: mongoose.Schema = new mongoose.Schema<Examples>({
     name: {type: String, required: true, trim: true},

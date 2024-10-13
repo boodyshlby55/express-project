@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import {PaginationQuery, QueryString, SearchQuery} from '../interfaces/features';
+import {PaginationQuery, QueryString, SearchQuery} from '../interfaces/features.interface';
 
 class Features {
     public paginationResult: PaginationQuery = {};

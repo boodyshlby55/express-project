@@ -1,10 +1,10 @@
 import {NextFunction, Request, Response} from 'express';
 import expressAsyncHandler from "express-async-handler";
 import mongoose from "mongoose";
-import ApiErrors from "../utils/apiErrors";
-import Features from "../utils/features";
-import {FilterData} from "../interfaces/filterData";
-import sanitization from "../utils/sanitization";
+import ApiErrors from "./utils/apiErrors";
+import Features from "./utils/features";
+import {FilterData} from "./interfaces/filterData.interface";
+import sanitization from "./utils/sanitization";
 
 class RefactorHandler {
     getAll = <modelType>(model: mongoose.Model<any>, modelName: string) => expressAsyncHandler(async (req: Request, res: Response): Promise<void> => {

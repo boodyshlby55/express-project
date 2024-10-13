@@ -4,24 +4,14 @@ import rateLimit from "express-rate-limit";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import Jwt from 'jsonwebtoken';
-import usersModel from "../models/usersModel";
-import ApiErrors from "../utils/apiErrors";
-import sendEmail from "../utils/sendEmail";
-import {Users} from "../interfaces/users";
-import sanitization from "../utils/sanitization";
-import tokens from "../utils/createToken";
+import usersModel from "../users/users.schema";
+import ApiErrors from "../global/utils/apiErrors";
+import sendEmail from "../global/utils/sendEmail";
+import {Users} from "../users/users.interface";
+import sanitization from "../global/utils/sanitization";
+import tokens from "../global/utils/createToken";
 
 class AuthService {
-    checkEmail = expressAsyncHandler(async (req: Request, res: Response): Promise<void> => {
-        const user = await usersModel.findOne({email: req.body.email});
-        let message: string;
-        if (user) {
-            message = `${req.__('not_available')}`;
-        } else {
-            message = `${req.__('available')}`;
-        }
-        res.status(200).json({data: message});
-    });
     signup = expressAsyncHandler(async (req: Request, res: Response): Promise<void> => {
         const user: Users = await usersModel.create(req.body);
         const token: string = tokens.createToken(user._id, user.role);

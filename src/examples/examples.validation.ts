@@ -1,11 +1,13 @@
 import fs from "fs";
 import {RequestHandler} from "express";
 import {check} from 'express-validator';
-import validatorMiddleware from "../../middlewares/validatorMiddleware";
+import validatorMiddleware from "../global/middlewares/validator.middleware";
 
-class ExamplesValidator {
+class ExamplesValidation {
     createExample: RequestHandler[] = [
-        check('name').notEmpty().withMessage((val, {req}) => req.__('validation_name')),
+        check('name')
+            .notEmpty().withMessage((val, {req}) => req.__('validation_field'))
+            .isLength({min: 2, max: 50}).withMessage((val, {req}) => req.__('validation_length_short')),
         validatorMiddleware
     ];
     getExample: RequestHandler[] = [
@@ -14,7 +16,9 @@ class ExamplesValidator {
     ];
     updateExample: RequestHandler[] = [
         check('id').isMongoId().withMessage((val, {req}) => req.__('invalid_id')),
-        check('name').notEmpty().withMessage((val, {req}) => req.__('validation_name')),
+        check('name')
+            .notEmpty().withMessage((val, {req}) => req.__('validation_field'))
+            .isLength({min: 2, max: 50}).withMessage((val, {req}) => req.__('validation_length_short')),
         validatorMiddleware
     ];
     deleteExample: RequestHandler[] = [
@@ -45,5 +49,5 @@ class ExamplesValidator {
     };
 }
 
-const examplesValidator = new ExamplesValidator();
+const examplesValidator = new ExamplesValidation();
 export default examplesValidator;

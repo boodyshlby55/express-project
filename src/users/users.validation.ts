@@ -2,27 +2,27 @@ import fs from "fs";
 import {RequestHandler} from "express";
 import {check} from "express-validator";
 import bcrypt from 'bcryptjs';
-import validatorMiddleware from "../../middlewares/validatorMiddleware";
-import usersModel from "../../models/usersModel";
+import validatorMiddleware from "../global/middlewares/validator.middleware";
+import usersModel from "./users.schema";
 
-class UsersValidator {
+class UsersValidation {
     createUser: RequestHandler[] = [
         check('name')
-            .notEmpty().withMessage((val, {req}) => req.__('validation_name'))
-            .isLength({min: 2, max: 50}).withMessage((val, {req}) => req.__('validation_name_length')),
+            .notEmpty().withMessage((val, {req}) => req.__('validation_field'))
+            .isLength({min: 2, max: 50}).withMessage((val, {req}) => req.__('validation_length_short')),
         check('email')
-            .notEmpty().withMessage((val, {req}) => req.__('validation_email'))
-            .isEmail().withMessage((val, {req}) => req.__('validation_email_check'))
-            .custom(async (val: string) => {
+            .notEmpty().withMessage((val, {req}) => req.__('validation_field'))
+            .isEmail().withMessage((val, {req}) => req.__('validation_value'))
+            .custom(async (val: string, {req}) => {
                 const user = await usersModel.findOne({email: val});
                 if (user) {
-                    throw new Error('Email is already exist')
+                    throw new Error(`${req.__('validation_email_check')}`)
                 }
                 return true;
             }),
         check('password')
-            .notEmpty().withMessage((val, {req}) => req.__('validation_password'))
-            .isLength({min: 6, max: 20}).withMessage((val, {req}) => req.__('validation_password_length'))
+            .notEmpty().withMessage((val, {req}) => req.__('validation_field'))
+            .isLength({min: 6, max: 20}).withMessage((val, {req}) => req.__('validation_length_password'))
             .custom((val: string, {req}) => {
                 if (val !== req.body.confirmPassword) {
                     throw new Error(req.__('validation_password_match'))
@@ -30,8 +30,8 @@ class UsersValidator {
                 return true;
             }),
         check('confirmPassword')
-            .notEmpty().withMessage((val, {req}) => req.__('validation_passwordConfirmation'))
-            .isLength({min: 6, max: 20}).withMessage((val, {req}) => req.__('validation_passwordConfirmation_length')),
+            .notEmpty().withMessage((val, {req}) => req.__('validation_field'))
+            .isLength({min: 6, max: 20}).withMessage((val, {req}) => req.__('validation_length_password')),
         validatorMiddleware
     ];
     getUser: RequestHandler[] = [
@@ -41,15 +41,15 @@ class UsersValidator {
     updateUser: RequestHandler[] = [
         check('id').isMongoId().withMessage((val, {req}) => req.__('invalid_id')),
         check('name').optional()
-            .isLength({min: 2, max: 50}).withMessage((val, {req}) => req.__('validation_name_length')),
+            .isLength({min: 2, max: 50}).withMessage((val, {req}) => req.__('validation_length_short')),
         check('active').optional().isBoolean().withMessage((val, {req}) => req.__('validation_value')),
         validatorMiddleware
     ];
     changeUserPassword: RequestHandler[] = [
         check('id').isMongoId().withMessage((val, {req}) => req.__('invalid_id')),
         check('password')
-            .notEmpty().withMessage((val, {req}) => req.__('validation_password'))
-            .isLength({min: 6, max: 20}).withMessage((val, {req}) => req.__('validation_password_length'))
+            .notEmpty().withMessage((val, {req}) => req.__('validation_field'))
+            .isLength({min: 6, max: 20}).withMessage((val, {req}) => req.__('validation_length_password'))
             .custom((val: string, {req}) => {
                 if (val !== req.body.confirmPassword) {
                     throw new Error(req.__('validation_password_match'))
@@ -57,32 +57,30 @@ class UsersValidator {
                 return true;
             }),
         check('confirmPassword')
-            .notEmpty().withMessage((val, {req}) => req.__('validation_passwordConfirmation'))
-            .isLength({min: 6, max: 20}).withMessage((val, {req}) => req.__('validation_passwordConfirmation_length')),
+            .notEmpty().withMessage((val, {req}) => req.__('validation_field'))
+            .isLength({min: 6, max: 20}).withMessage((val, {req}) => req.__('validation_length_password')),
         validatorMiddleware
     ];
     updateLoggedUser: RequestHandler[] = [
-        check('name').optional().isLength({
-            min: 2,
-            max: 50
-        }).withMessage((val, {req}) => req.__('validation_name_length')),
+        check('name').optional()
+            .isLength({min: 2, max: 50}).withMessage((val, {req}) => req.__('validation_length_short')),
         validatorMiddleware
     ];
     changeLoggedUserPassword: RequestHandler[] = [
         check('currentPassword')
-            .notEmpty().withMessage((val, {req}) => req.__('validation_currentPassword'))
-            .isLength({min: 6, max: 20}).withMessage((val, {req}) => req.__('validation_currentPassword_length'))
+            .notEmpty().withMessage((val, {req}) => req.__('validation_field'))
+            .isLength({min: 6, max: 20}).withMessage((val, {req}) => req.__('validation_length_password'))
             .custom(async (val: string, {req}) => {
                 const user = await usersModel.findById(req.user._id);
                 const isValidPassword: boolean = await bcrypt.compare(val, user!.password);
                 if (!isValidPassword) {
-                    throw new Error(req.__('validation_currentPassword_check'))
+                    throw new Error(req.__('validation_value'))
                 }
                 return true;
             }),
         check('password')
-            .notEmpty().withMessage((val, {req}) => req.__('validation_password'))
-            .isLength({min: 6, max: 20}).withMessage((val, {req}) => req.__('validation_password_length'))
+            .notEmpty().withMessage((val, {req}) => req.__('validation_field'))
+            .isLength({min: 6, max: 20}).withMessage((val, {req}) => req.__('validation_length_password'))
             .custom((val: string, {req}) => {
                 if (val !== req.body.confirmPassword) {
                     throw new Error(req.__('validation_password_match'))
@@ -90,8 +88,8 @@ class UsersValidator {
                 return true;
             }),
         check('confirmPassword')
-            .notEmpty().withMessage((val, {req}) => req.__('validation_passwordConfirmation'))
-            .isLength({min: 6, max: 20}).withMessage((val, {req}) => req.__('validation_passwordConfirmation_length')),
+            .notEmpty().withMessage((val, {req}) => req.__('validation_field'))
+            .isLength({min: 6, max: 20}).withMessage((val, {req}) => req.__('validation_length_password')),
         validatorMiddleware
     ];
     deleteUser: RequestHandler[] = [
@@ -110,5 +108,5 @@ class UsersValidator {
     };
 }
 
-const usersValidator = new UsersValidator();
-export default usersValidator;
+const usersValidation = new UsersValidation();
+export default usersValidation;

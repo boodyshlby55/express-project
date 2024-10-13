@@ -1,3 +1,4 @@
+import path from "path";
 import {Server} from 'http';
 import express from 'express';
 import dotenv from 'dotenv';
@@ -7,11 +8,9 @@ import hpp from 'hpp';
 import helmet from 'helmet';
 import ExpressMongoSanitize from 'express-mongo-sanitize';
 import cookieParser from 'cookie-parser';
-import csurf from "csurf";
 import i18n from "i18n";
-import DBConnection from './config/database';
-import mountRoutes from './routes';
-import path from "path";
+import DBConnection from './src/global/config/database';
+import mountRoutes from './src';
 
 const app: express.Application = express();
 
@@ -22,15 +21,6 @@ app.use(cors({
     credentials: true,
 }));
 app.use(cookieParser());
-app.use(
-    csurf({
-        cookie: {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'strict',
-        },
-    }),
-);
 app.use(express.json({limit: '1kb'}));
 app.use(compression());
 app.use(ExpressMongoSanitize());

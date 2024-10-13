@@ -1,9 +1,9 @@
 import {RequestHandler} from "express";
 import {check} from 'express-validator';
-import validatorMiddleware from "../../middlewares/validatorMiddleware";
-import usersModel from "../../models/usersModel";
+import validatorMiddleware from "../global/middlewares/validator.middleware";
+import usersModel from "../users/users.schema";
 
-class AuthValidator {
+class AuthValidation {
     signup: RequestHandler[] = [
         check('name')
             .notEmpty().withMessage((val, {req}) => {
@@ -100,5 +100,5 @@ class AuthValidator {
     ];
 }
 
-const authValidator = new AuthValidator();
-export default authValidator;
+const authValidation = new AuthValidation();
+export default authValidation;

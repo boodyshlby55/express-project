@@ -14,5 +14,8 @@ declare namespace NodeJS {
         EMAIL_USERNAME: string;
         EMAIL_PASSWORD: string;
         APP_NAME: string;
+        HMAC: string;
+        PAYMOB_SECRET: string;
+        PAYMOB_PUBLIC: string;
     }
 }

@@ -1,4 +1,4 @@
-import {FilterData} from "./filterData";
+import {FilterData} from "./filterData.interface";
 
 declare module 'express' {
     interface Request {

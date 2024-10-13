@@ -1,5 +1,5 @@
 import express from 'express';
-import {CustomErrors} from '../interfaces/customErrors';
+import {CustomErrors} from '../interfaces/customErrors.interface';
 
 const globalErrors = (err: CustomErrors, req: express.Request, res: express.Response, next: express.NextFunction) => {
     err.statusCode = err.statusCode || 500;

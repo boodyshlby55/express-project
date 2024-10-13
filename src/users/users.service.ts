@@ -2,15 +2,15 @@ import {NextFunction, Request, Response} from 'express';
 import expressAsyncHandler from 'express-async-handler';
 import sharp from 'sharp';
 import bcrypt from 'bcryptjs';
-import usersModel from "../models/usersModel";
-import {Users} from "../interfaces/users";
-import refactorHandler from "./refactorHandler";
-import {uploadSingleImage} from '../middlewares/uploadImages';
-import usersValidator from "../utils/validation/usersValidator";
-import tokens from '../utils/createToken';
+import usersModel from "./users.schema";
+import {Users} from "./users.interface";
+import refactorHandler from "../global/refactor.service";
+import {uploadSingleFile} from '../global/middlewares/upload.middleware';
+import usersValidator from "./users.validation";
+import tokens from '../global/utils/createToken';
 
 class UserService {
-    uploadUserImage = uploadSingleImage('image');
+    uploadUserImage = uploadSingleFile(['image'], 'image');
     resizeUserImage = expressAsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
         if (req.file) {
             const imgName = `user-${Date.now()}.png`

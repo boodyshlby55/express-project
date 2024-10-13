@@ -1,13 +1,13 @@
 import {Request, Response, NextFunction} from 'express';
 import expressAsyncHandler from "express-async-handler";
 import sharp from "sharp";
-import examplesModel from "../models/examplesModel";
-import ApiErrors from "../utils/apiErrors";
-import {Examples} from "../interfaces/examples";
-import {FilterData} from "../interfaces/filterData";
-import refactorHandler from "./refactorHandler";
-import {uploadMultiImages, uploadSingleImage} from "../middlewares/uploadImages";
-import examplesValidator from "../utils/validation/examplesValidator";
+import examplesModel from "./examples.schema";
+import ApiErrors from "../global/utils/apiErrors";
+import {Examples} from "./examples.interface";
+import {FilterData} from "../global/interfaces/filterData.interface";
+import refactorHandler from "../global/refactor.service";
+import {uploadMultiFiles, uploadSingleFile} from "../global/middlewares/upload.middleware";
+import examplesValidator from "./examples.validation";
 
 class ExamplesService {
     getExamples = refactorHandler.getAll<Examples>(examplesModel, 'Examples');
@@ -62,8 +62,8 @@ class ExamplesService {
         next();
     });
 
-    ExampleImage = uploadSingleImage('cover')
-    ExampleImages = uploadMultiImages([{name: 'cover', maxCount: 1}, {name: 'images', maxCount: 5}]);
+    ExampleImage = uploadSingleFile(['image'], 'cover')
+    ExampleImages = uploadMultiFiles(['image'], [{name: 'cover', maxCount: 1}, {name: 'images', maxCount: 5}]);
 
     addImages = expressAsyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         const example = await examplesModel.findById(req.params.id);

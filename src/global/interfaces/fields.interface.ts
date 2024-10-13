@@ -1,4 +1,4 @@
-export interface ImageFields {
+export interface Fields {
     name: string;
     maxCount: number;
 }
